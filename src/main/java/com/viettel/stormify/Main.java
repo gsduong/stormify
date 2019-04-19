@@ -5,7 +5,6 @@
  */
 package com.viettel.stormify;
 
-import com.viettel.services.RestService;
 import com.viettel.services.StormService;
 
 /**
