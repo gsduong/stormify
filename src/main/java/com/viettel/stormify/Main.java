@@ -3,13 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.viettel.javarestclient;
+package com.viettel.stormify;
+
+import com.viettel.services.RestService;
+import com.viettel.services.StormService;
 
 /**
  *
  * @author vtt-cntt-l-51
  */
-public class RestClient {
+public class Main {
 
     public static String main(String args[]) {
         
@@ -19,13 +22,13 @@ public class RestClient {
         }
         String host = args[0];
         int port = Integer.parseInt(args[1]);
-        RestService restService = new RestService(host, port );
+        StormService service = new StormService(host, port );
         String result;
-        if (restService.getClusterSummary() == null) {
+        if (service.getClusterSummary() == null) {
             result = "Cannot retrieve data from API endpoit: http://" + host + ":" + port + "/api/v1/\n";
             
         } else {
-            result = restService.toString(restService.getClusterSummary(), restService.getSupervisorsList(), restService.getTopologies());          
+            result = service.toString(service.getClusterSummary(), service.getSupervisorsList(), service.getTopologies());          
         }
         System.out.println(result);
         return result;

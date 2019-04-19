@@ -3,21 +3,19 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.viettel.javarestclient;
+package com.viettel.services;
 
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import com.viettel.javarestclient.models.Bolt;
-import com.viettel.javarestclient.models.ClusterSummary;
-import com.viettel.javarestclient.models.Spout;
-import com.viettel.javarestclient.models.Supervisor;
-import com.viettel.javarestclient.models.TopoStat;
-import com.viettel.javarestclient.models.Topology;
+import com.viettel.models.Bolt;
+import com.viettel.models.ClusterSummary;
+import com.viettel.models.Spout;
+import com.viettel.models.Supervisor;
+import com.viettel.models.TopoStat;
+import com.viettel.models.Topology;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
