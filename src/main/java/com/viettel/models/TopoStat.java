@@ -60,7 +60,7 @@ public class TopoStat {
 
     @Override
     public String toString() {
-        return "Window: " + this.getWindowPretty() + " - Emitted: " + this.getEmitted() + " - Transferred: " + this.getTransferred() + " - Acked: " + this.getAcked() + " - Failed: " + this.getFailed() + "\n";          
+        return "Window: " + this.getWindowPretty() + " - Emitted: " + this.getEmitted() + " - Transferred: " + this.getTransferred() + " - Acked: " + this.getAcked() + " - Failed: " + this.getFailed() + "<br>";          
     }
     
     

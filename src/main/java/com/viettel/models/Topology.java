@@ -69,7 +69,7 @@ public class Topology {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(this.getName()).append("\n");
+        sb.append("<b>").append(this.getName()).append("</b>").append("<br>");
         
         this.getTopoStats().forEach((topoStat) -> {
             StringBuilder append = sb.append(topoStat.toString());

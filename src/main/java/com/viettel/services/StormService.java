@@ -133,7 +133,10 @@ public class StormService implements StormServiceInterface {
             if (e.has("failed") && !e.isNull("failed")) {
                 failed = e.getInt("failed");
             }
-            topoStats.add(new TopoStat(e.getString("windowPretty"), e.getString("window"), e.getInt("emitted"), e.getInt("transferred"), e.getString("completeLatency"), e.getInt("acked"), failed));
+            if (e.getString("windowPretty").equals("1d 0h 0m 0s") || e.getString("windowPretty").equals("All time")) {
+            // do nothing
+            //   to monitor only last 3 running hours of topo 
+            } else topoStats.add(new TopoStat(e.getString("windowPretty"), e.getString("window"), e.getInt("emitted"), e.getInt("transferred"), e.getString("completeLatency"), e.getInt("acked"), failed));
         }
         Topology toAdd = new Topology(name, topoId, uptime, status, workersTotal, spouts, bolts, topoStats);
         return toAdd;

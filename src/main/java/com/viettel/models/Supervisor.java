@@ -34,6 +34,6 @@ public class Supervisor {
     
     @Override
     public String toString() {
-        return "Supervisor host: " + this.host + " - Uptime: " + this.uptime + "\n";
+        return "Supervisor host: " + this.host + " - Uptime: " + this.uptime + "<br>";
     }
 }
