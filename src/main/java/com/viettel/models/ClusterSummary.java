@@ -35,7 +35,7 @@ public class ClusterSummary {
 
     @Override
     public String toString() {
-        return "Storm version: " + this.stormVersion + " - Running topologies: " + this.topologies + " - Running supervisors: " + this.supervisors + "<br>";
+        return "Running topologies: " + this.topologies + " - Running supervisors: " + this.supervisors + "<br>";
     }
     
     

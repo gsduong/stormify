@@ -24,7 +24,7 @@ public class Main {
         StormService service = new StormService(host, port );
         String result;
         if (service.getClusterSummary() == null) {
-            result = "Cannot retrieve data from API endpoit: http://" + host + ":" + port + "/api/v1/\n";
+            result = "Cannot retrieve data from API endpoint: http://" + host + ":" + port + "/api/v1/<br>Check cluster status!!!<br>";
             
         } else {
             result = service.toString(service.getClusterSummary(), service.getSupervisorsList(), service.getTopologies());          

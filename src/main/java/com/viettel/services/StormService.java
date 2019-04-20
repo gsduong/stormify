@@ -20,6 +20,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -130,13 +132,27 @@ public class StormService implements StormServiceInterface {
         for (int i = 0; i < topoStatJsonArray.length(); i++) {
             JSONObject e = (JSONObject) topoStatJsonArray.get(i);
             int failed = 0;
+            int acked = 0;
+            int emitted = 0;
+            int transferred = 0;
             if (e.has("failed") && !e.isNull("failed")) {
                 failed = e.getInt("failed");
             }
+            if (e.has("acked") && !e.isNull("acked")) {
+                acked = e.getInt("acked");
+            }
+            if (e.has("emitted") && !e.isNull("emitted")) {
+                emitted = e.getInt("emitted");
+            }
+            if (e.has("transferred") && !e.isNull("transferred")) {
+                transferred = e.getInt("transferred");
+            }
             if (e.getString("windowPretty").equals("1d 0h 0m 0s") || e.getString("windowPretty").equals("All time")) {
-            // do nothing
-            //   to monitor only last 3 running hours of topo 
-            } else topoStats.add(new TopoStat(e.getString("windowPretty"), e.getString("window"), e.getInt("emitted"), e.getInt("transferred"), e.getString("completeLatency"), e.getInt("acked"), failed));
+                // do nothing
+                //   to monitor only last 3 running hours of topo 
+            } else {
+                topoStats.add(new TopoStat(e.getString("windowPretty"), e.getString("window"), emitted, transferred, e.getString("completeLatency"), acked, failed));
+            }
         }
         Topology toAdd = new Topology(name, topoId, uptime, status, workersTotal, spouts, bolts, topoStats);
         return toAdd;
@@ -190,11 +206,11 @@ public class StormService implements StormServiceInterface {
             }
             in.close();
             return new ApiResponse(responseCode, new JSONObject(response.toString()));
-
         } catch (MalformedURLException ex) {
-            return null;
+            Logger.getLogger(StormService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            return null;
+            Logger.getLogger(StormService.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return null;
     }
 }
