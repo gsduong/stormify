@@ -35,10 +35,21 @@ public class StormService implements StormServiceInterface {
     private final int uiPort;
     private final String apiBaseUrl;
 
+    private final ArrayList<String> targetTopologies;
+
+    /* old constructor */
     public StormService(String host, int uiPort) {
         this.host = host;
         this.uiPort = uiPort;
         this.apiBaseUrl = new StringBuilder().append("http://").append(this.host).append(":").append(this.uiPort).append("/api/v1/").toString();
+        this.targetTopologies = new ArrayList<>();
+    }
+
+    public StormService(String host, int uiPort, ArrayList<String> targetTopologies) {
+        this.host = host;
+        this.uiPort = uiPort;
+        this.apiBaseUrl = new StringBuilder().append("http://").append(this.host).append(":").append(this.uiPort).append("/api/v1/").toString();
+        this.targetTopologies = targetTopologies;
     }
 
     @Override
@@ -93,7 +104,11 @@ public class StormService implements StormServiceInterface {
         ArrayList<String> topoIdList = new ArrayList<>();
         for (int i = 0; i < array.length(); i++) {
             JSONObject e = (JSONObject) array.get(i);
-            topoIdList.add(e.getString("id"));
+            if (targetTopologies.isEmpty()) {
+                topoIdList.add(e.getString("id"));
+            } else if (targetTopologies.contains(e.getString("name").toLowerCase())) {
+                topoIdList.add(e.getString("id"));
+            }
         }
         return topoIdList;
     }
@@ -172,15 +187,44 @@ public class StormService implements StormServiceInterface {
     public String toString(ClusterSummary cs, ArrayList<Supervisor> supervisors, ArrayList<Topology> topologies) {
         StringBuilder sb = new StringBuilder();
         if (cs == null) {
-            sb.append("Cannot retrieve data from storm cluster\n");
+            sb.append("Cannot retrieve data from storm cluster").append(this.host).append("<br>");
         } else {
-            sb.append(cs.toString());
-            supervisors.forEach((supervisor) -> {
-                sb.append(supervisor.toString());
-            });
+
+            /* generate html string for email */
+            sb.append("<table style=\"border:1px solid black\">\n"
+                    + "<thead style=\"color:green\">\n"
+                    + "<tr>\n"
+                    + "<th style=\"border:1px solid black\" colspan=\"6\">");
+            sb.append("Storm ").append(this.host).append(" (").append(cs.getNumberOfSupervisors()).append(" running supervisor(s))");
+            sb.append("</th>\n"
+                    + "</tr>\n"
+                    + "</thead>\n"
+                    + "<tbody style=\"color:blue\">\n"
+                    + "<tr>\n"
+                    + "<th style=\"border:1px solid black\">Topo</th>\n"
+                    + "<th style=\"border:1px solid black\">Window</th>\n"
+                    + "<th style=\"border:1px solid black\">Emitted</th>\n"
+                    + "<th style=\"border:1px solid black\">Transferred</th>\n"
+                    + "<th style=\"border:1px solid black\">Acked</th>\n"
+                    + "<th style=\"border:1px solid black\">Failed</th>\n"
+                    + "</tr>\n");
+
             topologies.forEach((topology) -> {
-                sb.append(topology.toString());
+                sb.append("<tr>\n");
+                sb.append("<td style=\"border:1px solid black\" rowspan=\"2\">").append(topology.getName()).append("</td>\n");
+                topology.getTopoStats().forEach((topoStat) -> {
+                    sb.append("<td style=\"border:1px solid black\">").append(topoStat.getWindowPretty()).append("</td>\n");
+                    sb.append("<td style=\"border:1px solid black\">").append(topoStat.getEmitted()).append("</td>\n");
+                    sb.append("<td style=\"border:1px solid black\">").append(topoStat.getTransferred()).append("</td>\n");
+                    sb.append("<td style=\"border:1px solid black\">").append(topoStat.getAcked()).append("</td>\n");
+                    sb.append("<td style=\"border:1px solid black\">").append(topoStat.getFailed()).append("</td>\n");
+                    sb.append("</tr>\n");
+                    sb.append("<tr>\n");
+                });
+                sb.append("</tr>\n");
             });
+            sb.append("</tbody>\n"
+                    + "</table>");
         }
 
         return sb.toString();
