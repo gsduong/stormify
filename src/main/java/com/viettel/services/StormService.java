@@ -257,4 +257,76 @@ public class StormService implements StormServiceInterface {
         }
         return null;
     }
+
+    public Topology getTopologyById(String topoId, boolean getFullTopoInfo) {
+        ApiResponse clusterSummaryResponse = this.getApiResponse(this.getAPIBaseUrl() + "topology/" + topoId);
+        if (clusterSummaryResponse == null || clusterSummaryResponse.getResponseCode() != 200) {
+            return null;
+        }
+        JSONObject myObj = clusterSummaryResponse.getJsonResponse();
+        String name = myObj.getString("name");
+        String uptime = myObj.getString("uptime");
+        String status = myObj.getString("status");
+        Integer workersTotal = myObj.getInt("workersTotal");
+
+        /* get spouts */
+        JSONArray spoutJsonArray = myObj.getJSONArray("spouts");
+        ArrayList<Spout> spouts = new ArrayList<>();
+        for (int i = 0; i < spoutJsonArray.length(); i++) {
+            JSONObject e = (JSONObject) spoutJsonArray.get(i);
+            spouts.add(new Spout(e.getString("spoutId"), e.getInt("emitted"), e.getInt("failed"), e.getString("completeLatency"), e.getInt("transferred"), e.getInt("acked")));
+        }
+
+        /* get bolts */
+        JSONArray boltJsonArray = myObj.getJSONArray("bolts");
+        ArrayList<Bolt> bolts = new ArrayList<>();
+        for (int i = 0; i < boltJsonArray.length(); i++) {
+            JSONObject e = (JSONObject) boltJsonArray.get(i);
+            bolts.add(new Bolt(e.getInt("emitted"), e.getString("boltId"), e.getString("processLatency"), e.getString("executeLatency"), e.getInt("transferred"), e.getInt("acked"), e.getInt("executed")));
+        }
+
+        /* get topo stats */
+        JSONArray topoStatJsonArray = myObj.getJSONArray("topologyStats");
+        ArrayList<TopoStat> topoStats = new ArrayList<>();
+        for (int i = 0; i < topoStatJsonArray.length(); i++) {
+            JSONObject e = (JSONObject) topoStatJsonArray.get(i);
+            int failed = 0;
+            int acked = 0;
+            int emitted = 0;
+            int transferred = 0;
+            if (e.has("failed") && !e.isNull("failed")) {
+                failed = e.getInt("failed");
+            }
+            if (e.has("acked") && !e.isNull("acked")) {
+                acked = e.getInt("acked");
+            }
+            if (e.has("emitted") && !e.isNull("emitted")) {
+                emitted = e.getInt("emitted");
+            }
+            if (e.has("transferred") && !e.isNull("transferred")) {
+                transferred = e.getInt("transferred");
+            }
+            if (getFullTopoInfo) {
+                if (e.getString("windowPretty").equals("All time")) {
+                    // do not add
+                } else topoStats.add(new TopoStat(e.getString("windowPretty"), e.getString("window"), emitted, transferred, e.getString("completeLatency"), acked, failed));
+            } else if (e.getString("windowPretty").equals("1d 0h 0m 0s") || e.getString("windowPretty").equals("All time")) {
+                // do nothing
+                //   to monitor only last 3 running hours of topo 
+            } else {
+                topoStats.add(new TopoStat(e.getString("windowPretty"), e.getString("window"), emitted, transferred, e.getString("completeLatency"), acked, failed));
+            }
+        }
+        Topology toAdd = new Topology(name, topoId, uptime, status, workersTotal, spouts, bolts, topoStats);
+        return toAdd;
+    }
+
+    public ArrayList<Topology> getTopologies(boolean getFullTopoInfo) {
+        ArrayList<Topology> topologies = new ArrayList<>();
+        ArrayList<String> topoIdList = this.getTopoIdList();
+        topoIdList.forEach((topoId) -> {
+            boolean add = topologies.add(this.getTopologyById(topoId, getFullTopoInfo));
+        });
+        return topologies;
+    }
 }
