@@ -16,7 +16,7 @@ public class Main {
 
     public static String main(String args[]) {
         
-        if (args.length <= 2) {
+        if (args.length < 2) {
             System.out.println("Invalid number of arguments: run with <arg1=host> <arg2=port> <arg3=topo_name> ...");
             return null;
         }
